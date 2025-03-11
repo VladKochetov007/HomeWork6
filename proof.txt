@@ -1,0 +1,20 @@
+Processing input01.txt:
+Processed 100 shapes, 73 were valid
+Shape with maximum area: Circle
+Area: 1385.44
+Shape with maximum perimeter: Circle
+Perimeter: 131.95
+
+Processing input02.txt:
+Processed 500 shapes, 413 were valid
+Shape with maximum area: Circle
+Area: 1963.50
+Shape with maximum perimeter: Circle
+Perimeter: 157.08
+
+Processing input03.txt:
+Processed 1000 shapes, 815 were valid
+Shape with maximum area: Circle
+Area: 1963.50
+Shape with maximum perimeter: Circle
+Perimeter: 157.08
