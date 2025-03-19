@@ -1,0 +1,8 @@
+Rectangle 10 15
+Circle 20
+Ball 10
+TriangularPyramid 10 12
+QuadrangularPyramid 10 15 20
+RectangularParallelepiped 10 20 15
+Cone 15 20
+TriangularPrism 10 12 15 20 

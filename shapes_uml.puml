@@ -1,0 +1,181 @@
+@startuml Shapes Class Hierarchy
+
+' Style and configuration
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam classFontColor black
+skinparam classBackgroundColor LightSkyBlue
+skinparam classStereotypeFontSize 12
+skinparam packageFontColor black
+skinparam packageBackgroundColor white
+skinparam packageFontSize 14
+skinparam packageFontStyle bold
+
+' Abstract base class Shape
+abstract class Shape {
+  +{abstract} dimension(): Dimension
+  +{abstract} perimeter(): float|None
+  +{abstract} area(): float|None
+  +square(): float|None
+  +square_surface(): float|None
+  +square_base(): float|None
+  +height(): float|None
+  +volume(): float
+  #_square_surface(): float
+  #_square_base(): float
+  #_height(): float
+  #_volume(): float
+}
+
+' Dimension Enum
+enum Dimension {
+  TWO_DIMENSIONAL
+  THREE_DIMENSIONAL
+}
+
+' Base classes for 2D and 3D shapes
+abstract class TwoDimensionalShape {
+  +dimension(): Dimension
+  +square_surface(): None
+  +square_base(): None
+  +height(): None
+}
+
+abstract class ThreeDimensionalShape {
+  +dimension(): Dimension
+  +perimeter(): None
+  +area(): None
+}
+
+' 2D Shapes
+class Triangle {
+  -a: float
+  -b: float
+  -c: float
+  +__init__(a: float, b: float, c: float)
+  +perimeter(): float
+  +area(): float
+}
+
+class Rectangle {
+  -a: float
+  -b: float
+  +__init__(a: float, b: float)
+  +perimeter(): float
+  +area(): float
+}
+
+class Trapeze {
+  -a: float
+  -b: float
+  -c: float
+  -d: float
+  +__init__(a: float, b: float, c: float, d: float)
+  +perimeter(): float
+  +area(): float
+}
+
+class Parallelogram {
+  -a: float
+  -b: float
+  -h: float
+  +__init__(a: float, b: float, h: float)
+  +perimeter(): float
+  +area(): float
+}
+
+class Circle {
+  -r: float
+  +__init__(r: float)
+  +perimeter(): float
+  +area(): float
+}
+
+' 3D Shapes
+class Ball {
+  -r: float
+  +__init__(r: float)
+  #_square_surface(): float
+  #_volume(): float
+}
+
+class TriangularPyramid {
+  -h: float
+  +__init__(side: float, height: float)
+  +dimension(): Dimension
+  #_height(): float
+  #_square_base(): float
+  #_square_surface(): float
+  #_volume(): float
+}
+
+class QuadrangularPyramid {
+  -h: float
+  +__init__(a: float, b: float, height: float)
+  +dimension(): Dimension
+  #_height(): float
+  #_square_base(): float
+  #_square_surface(): float
+  #_volume(): float
+}
+
+class RectangularParallelepiped {
+  -c: float
+  +__init__(a: float, b: float, c: float)
+  +dimension(): Dimension
+  #_height(): float
+  #_square_base(): float
+  #_square_surface(): float
+  #_volume(): float
+}
+
+class Cone {
+  -h: float
+  +__init__(r: float, height: float)
+  +dimension(): Dimension
+  #_height(): float
+  #_square_base(): float
+  #_square_surface(): float
+  #_volume(): float
+}
+
+class TriangularPrism {
+  -h: float
+  +__init__(a: float, b: float, c: float, height: float)
+  +dimension(): Dimension
+  #_height(): float
+  #_square_base(): float
+  #_square_surface(): float
+  #_volume(): float
+}
+
+' Relationships
+Shape <|-- TwoDimensionalShape
+Shape <|-- ThreeDimensionalShape
+
+TwoDimensionalShape <|-- Triangle
+TwoDimensionalShape <|-- Rectangle
+TwoDimensionalShape <|-- Trapeze
+TwoDimensionalShape <|-- Parallelogram
+TwoDimensionalShape <|-- Circle
+
+ThreeDimensionalShape <|-- Ball
+
+' Multiple inheritance relationships
+Triangle <|-- TriangularPyramid
+ThreeDimensionalShape <|-- TriangularPyramid
+
+Rectangle <|-- QuadrangularPyramid
+ThreeDimensionalShape <|-- QuadrangularPyramid
+
+Rectangle <|-- RectangularParallelepiped
+ThreeDimensionalShape <|-- RectangularParallelepiped
+
+Circle <|-- Cone
+ThreeDimensionalShape <|-- Cone
+
+Triangle <|-- TriangularPrism
+ThreeDimensionalShape <|-- TriangularPrism
+
+@enduml 

@@ -1,18 +1,89 @@
 import math
 from abc import ABC, abstractmethod
+from enum import Enum, auto
+from typing import Literal
+
+
+class Dimension(Enum):
+    TWO_DIMENSIONAL = auto()
+    THREE_DIMENSIONAL = auto()
 
 
 class Shape(ABC):
     @abstractmethod
-    def perimeter(self) -> float:
+    def dimension(self) -> Dimension:
         pass
     
     @abstractmethod
-    def area(self) -> float:
+    def perimeter(self) -> float | None:
         pass
+    
+    @abstractmethod
+    def area(self) -> float | None:
+        pass
+    
+    def square(self) -> float | None:
+        return self.area()
+    
+    def square_surface(self) -> float | None:
+        if self.dimension() == Dimension.TWO_DIMENSIONAL:
+            return None
+        return self._square_surface()
+    
+    def _square_surface(self) -> float:
+        return None
+    
+    def square_base(self) -> float | None:
+        if self.dimension() == Dimension.TWO_DIMENSIONAL:
+            return None
+        return self._square_base()
+    
+    def _square_base(self) -> float:
+        return None
+    
+    def height(self) -> float | None:
+        if self.dimension() == Dimension.TWO_DIMENSIONAL:
+            return None
+        return self._height()
+    
+    def _height(self) -> float:
+        return None
+    
+    def volume(self) -> float:
+        if self.dimension() == Dimension.TWO_DIMENSIONAL:
+            return self.area()
+        return self._volume()
+    
+    def _volume(self) -> float:
+        return 0.0
 
 
-class Triangle(Shape):
+class TwoDimensionalShape(Shape):
+    def dimension(self) -> Dimension:
+        return Dimension.TWO_DIMENSIONAL
+    
+    def square_surface(self) -> None:
+        return None
+    
+    def square_base(self) -> None:
+        return None
+    
+    def height(self) -> None:
+        return None
+
+
+class ThreeDimensionalShape(Shape):
+    def dimension(self) -> Dimension:
+        return Dimension.THREE_DIMENSIONAL
+    
+    def perimeter(self) -> None:
+        return None
+    
+    def area(self) -> None:
+        return None
+
+
+class Triangle(TwoDimensionalShape):
     def __init__(self, a: float, b: float, c: float):
         if a + b <= c or a + c <= b or b + c <= a or a <= 0 or b <= 0 or c <= 0:
             raise ValueError("Invalid triangle sides")
@@ -29,7 +100,7 @@ class Triangle(Shape):
         return math.sqrt(s * (s - self.a) * (s - self.b) * (s - self.c))
 
 
-class Rectangle(Shape):
+class Rectangle(TwoDimensionalShape):
     def __init__(self, a: float, b: float):
         if a <= 0 or b <= 0:
             raise ValueError("Rectangle sides must be positive")
@@ -44,7 +115,7 @@ class Rectangle(Shape):
         return self.a * self.b
 
 
-class Trapeze(Shape):
+class Trapeze(TwoDimensionalShape):
     def __init__(self, a: float, b: float, c: float, d: float):
         if a <= 0 or b <= 0 or c <= 0 or d <= 0:
             raise ValueError("Trapeze sides must be positive")
@@ -66,7 +137,7 @@ class Trapeze(Shape):
             return 0
 
 
-class Parallelogram(Shape):
+class Parallelogram(TwoDimensionalShape):
     def __init__(self, a: float, b: float, h: float):
         if a <= 0 or b <= 0 or h <= 0:
             raise ValueError("Parallelogram parameters must be positive")
@@ -82,7 +153,7 @@ class Parallelogram(Shape):
         return self.a * self.h
 
 
-class Circle(Shape):
+class Circle(TwoDimensionalShape):
     def __init__(self, r: float):
         if r <= 0:
             raise ValueError("Circle radius must be positive")
@@ -94,6 +165,149 @@ class Circle(Shape):
     
     def area(self) -> float:
         return math.pi * self.r**2
+
+
+class Ball(ThreeDimensionalShape):
+    def __init__(self, r: float):
+        if r <= 0:
+            raise ValueError("Ball radius must be positive")
+        
+        self.r = r
+    
+    def _square_surface(self) -> float:
+        return 4 * math.pi * self.r**2
+    
+    def _volume(self) -> float:
+        return (4/3) * math.pi * self.r**3
+
+
+class TriangularPyramid(Triangle, ThreeDimensionalShape):
+    def __init__(self, side: float, height: float):
+        if side <= 0 or height <= 0:
+            raise ValueError("Triangular pyramid parameters must be positive")
+        
+        super().__init__(side, side, side)
+        self.h = height
+    
+    def dimension(self) -> Dimension:
+        return Dimension.THREE_DIMENSIONAL
+    
+    def _height(self) -> float:
+        return self.h
+    
+    def _square_base(self) -> float:
+        return super().area()
+    
+    def _square_surface(self) -> float:
+        slant_height = math.sqrt((self.a / (2 * math.sqrt(3)))**2 + self.h**2)
+        face_area = 0.5 * self.a * slant_height
+        return 3 * face_area
+    
+    def _volume(self) -> float:
+        return (1/3) * self._square_base() * self.h
+
+
+class QuadrangularPyramid(Rectangle, ThreeDimensionalShape):
+    def __init__(self, a: float, b: float, height: float):
+        if a <= 0 or b <= 0 or height <= 0:
+            raise ValueError("Quadrangular pyramid parameters must be positive")
+        
+        Rectangle.__init__(self, a, b)
+        self.h = height
+    
+    def dimension(self) -> Dimension:
+        return Dimension.THREE_DIMENSIONAL
+    
+    def _height(self) -> float:
+        return self.h
+    
+    def _square_base(self) -> float:
+        return Rectangle.area(self)
+    
+    def _square_surface(self) -> float:
+        slant_height_a = math.sqrt((self.a/2)**2 + self.h**2)
+        slant_height_b = math.sqrt((self.b/2)**2 + self.h**2)
+        
+        face_area_a = 0.5 * self.a * slant_height_b
+        face_area_b = 0.5 * self.b * slant_height_a
+        
+        return 2 * (face_area_a + face_area_b)
+    
+    def _volume(self) -> float:
+        return (1/3) * self._square_base() * self.h
+
+
+class RectangularParallelepiped(Rectangle, ThreeDimensionalShape):
+    def __init__(self, a: float, b: float, c: float):
+        if a <= 0 or b <= 0 or c <= 0:
+            raise ValueError("Rectangular parallelepiped parameters must be positive")
+        
+        Rectangle.__init__(self, a, b)
+        self.c = c
+    
+    def dimension(self) -> Dimension:
+        return Dimension.THREE_DIMENSIONAL
+    
+    def _height(self) -> float:
+        return self.c
+    
+    def _square_base(self) -> float:
+        return Rectangle.area(self)
+    
+    def _square_surface(self) -> float:
+        return 2 * (self.a * self.c + self.b * self.c)
+    
+    def _volume(self) -> float:
+        return self.a * self.b * self.c
+
+
+class Cone(Circle, ThreeDimensionalShape):
+    def __init__(self, r: float, height: float):
+        if r <= 0 or height <= 0:
+            raise ValueError("Cone parameters must be positive")
+        
+        Circle.__init__(self, r)
+        self.h = height
+    
+    def dimension(self) -> Dimension:
+        return Dimension.THREE_DIMENSIONAL
+    
+    def _height(self) -> float:
+        return self.h
+    
+    def _square_base(self) -> float:
+        return Circle.area(self)
+    
+    def _square_surface(self) -> float:
+        slant_height = math.sqrt(self.r**2 + self.h**2)
+        return math.pi * self.r * slant_height
+    
+    def _volume(self) -> float:
+        return (1/3) * self._square_base() * self.h
+
+
+class TriangularPrism(Triangle, ThreeDimensionalShape):
+    def __init__(self, a: float, b: float, c: float, height: float):
+        if a <= 0 or b <= 0 or c <= 0 or height <= 0:
+            raise ValueError("Triangular prism parameters must be positive")
+        
+        Triangle.__init__(self, a, b, c)
+        self.h = height
+    
+    def dimension(self) -> Dimension:
+        return Dimension.THREE_DIMENSIONAL
+    
+    def _height(self) -> float:
+        return self.h
+    
+    def _square_base(self) -> float:
+        return Triangle.area(self)
+    
+    def _square_surface(self) -> float:
+        return self.perimeter() * self.h
+    
+    def _volume(self) -> float:
+        return self._square_base() * self.h
 
 
 def parse_shape(line: str) -> Shape | None:
@@ -121,18 +335,34 @@ def parse_shape(line: str) -> Shape | None:
             case "Circle":
                 if len(params) == 1:
                     return Circle(params[0])
-    except ValueError:
+            case "Ball":
+                if len(params) == 1:
+                    return Ball(params[0])
+            case "TriangularPyramid":
+                if len(params) == 2:
+                    return TriangularPyramid(params[0], params[1])
+            case "QuadrangularPyramid":
+                if len(params) == 3:
+                    return QuadrangularPyramid(params[0], params[1], params[2])
+            case "RectangularParallelepiped":
+                if len(params) == 3:
+                    return RectangularParallelepiped(params[0], params[1], params[2])
+            case "Cone":
+                if len(params) == 2:
+                    return Cone(params[0], params[1])
+            case "TriangularPrism":
+                if len(params) == 4:
+                    return TriangularPrism(params[0], params[1], params[2], params[3])
+    except ValueError as e:
+        print(f"Error parsing shape {shape_type}: {e}")
         return None
     
     return None
 
 
-def process_file(file_path: str) -> tuple[Shape | None, Shape | None]:
-    max_area_shape = None
-    max_area = float('-inf')
-    
-    max_perimeter_shape = None
-    max_perimeter = float('-inf')
+def process_file(file_path: str) -> Shape | None:
+    max_measure_shape = None
+    max_measure = float('-inf')
     
     shapes_count = 0
     valid_shapes_count = 0
@@ -149,24 +379,19 @@ def process_file(file_path: str) -> tuple[Shape | None, Shape | None]:
                 valid_shapes_count += 1
                 
                 try:
-                    area = shape.area()
-                    perimeter = shape.perimeter()
+                    measure = shape.volume()
                     
-                    if area > max_area:
-                        max_area = area
-                        max_area_shape = shape
-                    
-                    if perimeter > max_perimeter:
-                        max_perimeter = perimeter
-                        max_perimeter_shape = shape
+                    if measure > max_measure:
+                        max_measure = measure
+                        max_measure_shape = shape
                 except Exception as e:
-                    print(f"Error calculating area or perimeter: {e}")
+                    print(f"Error calculating measure: {e}")
     
     except Exception as e:
         print(f"Error processing file {file_path}: {e}")
     
     print(f"Processed {shapes_count} shapes, {valid_shapes_count} were valid")
-    return max_area_shape, max_perimeter_shape
+    return max_measure_shape
 
 
 def download_input_files():
@@ -187,25 +412,24 @@ def download_input_files():
 
 
 def main():
-    download_input_files()
+    import sys
     
-    input_files = ["input01.txt", "input02.txt", "input03.txt"]
+    if len(sys.argv) > 1:
+        input_files = sys.argv[1:]
+    else:
+        download_input_files()
+        input_files = ["input01.txt", "input02.txt", "input03.txt"]
     
     for file_path in input_files:
         print(f"\nProcessing {file_path}:")
-        max_area_shape, max_perimeter_shape = process_file(file_path)
+        max_measure_shape = process_file(file_path)
         
-        if max_area_shape:
-            print(f"Shape with maximum area: {max_area_shape.__class__.__name__}")
-            print(f"Area: {max_area_shape.area():.2f}")
+        if max_measure_shape:
+            measure_name = "Volume" if max_measure_shape.dimension() == Dimension.THREE_DIMENSIONAL else "Area"
+            print(f"Shape with maximum measure: {max_measure_shape.__class__.__name__}")
+            print(f"{measure_name}: {max_measure_shape.volume():.2f}")
         else:
-            print("No valid shape found for maximum area")
-        
-        if max_perimeter_shape:
-            print(f"Shape with maximum perimeter: {max_perimeter_shape.__class__.__name__}")
-            print(f"Perimeter: {max_perimeter_shape.perimeter():.2f}")
-        else:
-            print("No valid shape found for maximum perimeter")
+            print("No valid shape found with maximum measure")
 
 
 if __name__ == "__main__":
