@@ -418,7 +418,7 @@ def main():
         input_files = sys.argv[1:]
     else:
         download_input_files()
-        input_files = ["input01.txt", "input02.txt", "input03.txt"]
+        input_files = ["input01_3d.txt"]
     
     for file_path in input_files:
         print(f"\nProcessing {file_path}:")
